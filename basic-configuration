@@ -1,4 +1,4 @@
-/ip firewall filter
+#
 {
 # SET VARIABLES:BEGIN
 :global name=studentnumber value=1
