@@ -1,0 +1,181 @@
+### BASIC ROUTER CONFURATION
+#
+{
+# SET VARIABLES:BEGIN
+:global name=studentnumber value=1
+# SET VARIABLES:END
+#
+# CONFIGURATION:BEGIN
+#
+## GENERAL
+system identity set name="TS$studentnumber"
+## WAN
+/interface ethernet set name=ether1-wan [find where name=ether1]
+/ip dhcp-client add interface=ether1-wan add-default-route=yes default-route-distance=1 disabled=no
+/interface list add name=WAN
+/interface list member add list=WAN interface=ether1-wan
+## DNS
+/ip dns set allow-remote-requests=yes
+## BRIDGE
+/interface bridge
+add name=bridge-LAN auto-mac=no admin-mac=[/interface ethernet get value-name=mac-address [find where name~"ether2"]]\
+ igmp-snooping=yes fast-forward=yes dhcp-snooping=yes vlan-filtering=yes
+### BRIDGE:ENABLE VLAN FILTERING ON BRIDGE
+set vlan-filtering=yes [find]
+### BRIDGE:PORT
+port
+:foreach i in=[/interface ethernet find where name!=ether1-wan] do={ /interface bridge port add bridge=bridge-LAN interface=$i};
+:foreach i in=[/interface wireless find] do={ /interface bridge port add bridge=bridge-LAN interface=$i};
+/interface bridge port set [find] ingress-filtering=yes
+## LAN
+/interface list add name=LAN
+/interface list member add list=LAN interface=bridge-LAN
+/ip address add address="172.16.$studentnumber.1/24" interface=bridge-LAN network="172.16.$studentnumber.0"
+/ip pool add name=pool-LAN ranges="172.16.$studentnumber.100-172.16.$studentnumber.200"
+/ip dhcp-server
+add name=DHCP-LAN address-pool=pool-LAN interface=bridge-LAN lease-time=5m add-arp=yes
+network add address="172.16.$studentnumber.0/24" gateway="172.16.$studentnumber.1"
+### LAN:WLAN
+/interface wireless
+security-profiles add name=WiFiPass authentication-types=wpa2-psk wpa2-pre-shared-key=mysecurewifi mode=dynamic-keys
+set name="TS$studentnumber-2" ssid="TS$studentnumber-2" frequency-mode=regulatory-domain country=latvia installation=indoor band=2ghz-b/g/n\
+ adaptive-noise-immunity=ap-and-client-mode security-profile=WiFiPass channel-width=20mhz frequency=auto\
+ wireless-protocol=802.11 mode=ap-bridge [find where default-name~"wlan" && band~"2ghz" ]
+set name="TS$studentnumber-5" ssid="TS$studentnumber-5" frequency-mode=regulatory-domain country=latvia installation=indoor band=5ghz-a/n/ac\
+ adaptive-noise-immunity=ap-and-client-mode security-profile=WiFiPass channel-width=20mhz frequency=auto\
+ wireless-protocol=802.11 mode=ap-bridge [find where default-name~"wlan" && band~"5ghz" ]
+enable [find]
+## FIREWALL:BEGIN
+### FIREWALL:FILTER
+/ip firewall filter
+remove [find dynamic=no]
+add action=fasttrack-connection chain=input connection-state=established,related
+add action=drop chain=input connection-state=invalid
+add action=accept chain=input connection-state=established,related
+add action=accept chain=input protocol=icmp
+add action=drop chain=input in-interface-list=WAN
+### FIREWALL:NAT
+/ip firewall nat
+remove [find dynamic=no]
+add chain=srcnat out-interface-list=WAN action=masquerade ipsec-policy=out,none comment=masquerade-internet
+add action=redirect chain=dstnat dst-port=53 in-interface-list=LAN protocol=udp to-ports=53
+add action=redirect chain=dstnat dst-port=53 in-interface-list=LAN protocol=tcp to-ports=53
+## FIREWALL:END
+## OTHER SETTINGS
+### IP SETTINGS:TCP_SYNCOOKIES
+/ip settings set tcp-syncookies=yes
+### IP SETTINGS:NEIGHBORS
+/ip neighbor discovery-settings
+set discover-interface-list=LAN
+### CLOCK
+/system clock
+set time-zone-name=Europe/Riga
+### UPNP
+/ip upnp
+set enabled=yes
+interfaces
+add interface=bridge-LAN type=internal
+add interface=ether1-wan type=external
+### MAC-server
+/tool mac-server
+set allowed-interface-list=LAN
+mac-winbox
+set allowed-interface-list=LAN
+### UPDATE
+/system package update set channel=long-term
+### FIRMWARE
+/system routerboard settings set auto-upgrade=yes
+## PASSWORD
+/password old-password="" new-password=Myrouter1 confirm-new-password=Myrouter1
+#
+/
+}
+#
+#
+#
+### QoS
+{
+# Firewall Mangle rules to mark connections to streaming services
+/ip firewall mangle
+## add connection mark
+### youtube
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="youtube"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="googlevideo"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="video.google"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="video.l.google"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="youtu."
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="yt."
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="yt3.ggpht.com"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="ytimg"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="ytkids"
+### twitch
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:twitch"  content="twitch"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:twitch"  content="ttvnw.net"
+### Netflix
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:Netflix"  content="Netflix"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:Netflix"  content="nflx"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
+    comment="Connection-mark streaming:Netflix"  content="Netflix"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
+    comment="Connection-mark streaming:Netflix"  content="nflx"
+## add address of streaming server to the address list
+add action=add-dst-to-address-list address-list=addr-l_streaming address-list-timeout=3h chain=prerouting comment=\
+    "Add streaming destination IP to the address list addr-l_streaming" connection-mark=cm_streaming log=yes log-prefix=addr-l_streaming
+## add packet mark for streaming
+add action=mark-packet chain=prerouting comment="Packet mark streaming" dst-address-list=addr-l_streaming log=yes\
+log-prefix=pm_streaming_googlevideo new-packet-mark=pm_streaming passthrough=yes
+#
+# Firewall Mangle rules to mark connections for live video and audio calls
+add action=mark-connection chain=prerouting comment="Connection-mark live-video-audio" connection-mark=no-mark\
+    connection-state=new dst-address-list=!addr-l_streaming log=yes log-prefix=cm_live-video-audio\
+    new-connection-mark=cm_live-video-audio passthrough=yes protocol=udp
+## add address of live video or audio call to the address list
+add action=add-dst-to-address-list address-list=addr-l_live-video-audio address-list-timeout=4h chain=prerouting comment=\
+    "Add live video or audio call destination IP to the address list addr-l_live-video-audio" connection-mark=cm_live-video-audio\
+    log=yes log-prefix=addr-l_live-video-audio
+## add packet mark for live video or audio calls
+add action=mark-packet chain=prerouting comment="Packet-mark live-video-audio" dst-address-list=addr-l_live-video-audio\
+    log=yes log-prefix=pm_live-video-audio new-packet-mark=pm_live-video-audio passthrough=yes  protocol=udp
+#
+# Queue types
+/queue type
+add kind=pcq name=streaming-pcq pcq-burst-rate=10M pcq-burst-threshold=2M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=2M
+add kind=pcq name=live-calls-pcq pcq-burst-rate=10M pcq-burst-threshold=6M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=6M
+add kind=pcq name=other-pcq pcq-burst-rate=10M pcq-burst-threshold=5M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=5M
+#
+#Queue tree
+/queue tree
+add name=QT-ether1-wan parent=bridge-LAN priority=1
+add name=QT-streaming packet-mark=pm_streaming parent=QT-ether1-wan queue=streaming-pcq
+add name=QT-live-calls packet-mark=pm_live-video-audio parent=QT-ether1-wan priority=1 queue=live-calls-pcq
+add name=QT-other packet-mark=no-mark parent=QT-ether1-wan priority=2 queue=other-pcq
+}
+#
