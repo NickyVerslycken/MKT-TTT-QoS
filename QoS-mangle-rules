@@ -4,6 +4,12 @@
 ### youtube
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
     log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="youtube"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    comment="Connection-mark streaming:youtube"  content="googlevideo"
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
+    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
     comment="Connection-mark streaming:youtube"  content="video.google"
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
     log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
@@ -25,21 +31,21 @@ add action=mark-connection chain=prerouting connection-mark=no-mark connection-s
     comment="Connection-mark streaming:youtube"  content="ytkids"
 ### twitch
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    log=yes log-prefix=cm_streaming_twitch new-connection-mark=cm_streaming passthrough=yes protocol=udp\
     comment="Connection-mark streaming:twitch"  content="twitch"
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    log=yes log-prefix=cm_streaming_twitch new-connection-mark=cm_streaming passthrough=yes protocol=udp\
     comment="Connection-mark streaming:twitch"  content="ttvnw.net"
 ### Netflix
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    log=yes log-prefix=cm_streaming_netflix new-connection-mark=cm_streaming passthrough=yes protocol=udp\
     comment="Connection-mark streaming:Netflix"  content="Netflix"
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
+    log=yes log-prefix=cm_streaming_netflix new-connection-mark=cm_streaming passthrough=yes protocol=udp\
     comment="Connection-mark streaming:Netflix"  content="nflx"
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
+    log=yes log-prefix=cm_streaming_netflix new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
     comment="Connection-mark streaming:Netflix"  content="Netflix"
 add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
+    log=yes log-prefix=cm_streaming_netflix new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
     comment="Connection-mark streaming:Netflix"  content="nflx"
