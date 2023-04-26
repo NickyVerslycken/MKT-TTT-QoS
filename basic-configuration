@@ -32,7 +32,7 @@ port
 /ip address add address="172.16.$studentnumber.1/24" interface=bridge-LAN network="172.16.$studentnumber.0"
 /ip pool add name=pool-LAN ranges="172.16.$studentnumber.100-172.16.$studentnumber.200"
 /ip dhcp-server
-add name=DHCP-LAN address-pool=pool-LAN interface=bridge-LAN lease-time=5m add-arp=yes
+add name=DHCP-LAN address-pool=pool-LAN interface=bridge-LAN lease-time=5m add-arp=yes disabled=no
 network add address="172.16.$studentnumber.0/24" gateway="172.16.$studentnumber.1"
 ### LAN:WLAN
 /interface wireless
