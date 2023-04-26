@@ -149,7 +149,7 @@ add action=add-dst-to-address-list address-list=addr-l_streaming address-list-ti
     "Add streaming destination IP to the address list addr-l_streaming" connection-mark=cm_streaming log=yes log-prefix=addr-l_streaming
 ## add packet mark for streaming
 add action=mark-packet chain=prerouting comment="Packet mark streaming" dst-address-list=addr-l_streaming log=yes\
-log-prefix=pm_streaming_googlevideo new-packet-mark=pm_streaming passthrough=yes
+log-prefix=pm_streaming new-packet-mark=pm_streaming passthrough=yes
 #
 # Firewall Mangle rules to mark connections for live video and audio calls
 add action=mark-connection chain=prerouting comment="Connection-mark live-video-audio" connection-mark=no-mark\
