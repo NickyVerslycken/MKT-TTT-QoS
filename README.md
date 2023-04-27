@@ -2,7 +2,7 @@
 
 ## Configuration files:
 > Only use them when you are short on time or as gideline when you are configuring your router by yourself.
- -  Basic configuration:
+ -  basic-configuration:
     - You can use that for loading a basic configuration in your router if you want but a normal basic router setup works perfect aswell for this lab.
     - Tackle it:
       - Connect your computer with your router on ether1.
@@ -10,11 +10,11 @@
       - Copy the script from the file "basic-configuration" and past it in the terminal of your router.
       - When it's fully deployed disconnect from ether1 and connect you computer to ether2.
       - Connect ether1 to the internet RJ45 connection in your desk.
- -  Firewall rules:
+ -  firewall-rules:
      - This are the rules you will inplement in the address list and the mangle rules in your configuration.
- -  Firewall rules extended:
+ -  firewall-rules-extended:
      - This rules are an extension for the address list, you don't need them to implement but that are subnets of more streaming servers of the same company.
- -  Queue rules
+ -  queue-rules
      - This is the configuration for the Queue type's and the Queue tree
 
 ----------------------------------------------------------------------------
