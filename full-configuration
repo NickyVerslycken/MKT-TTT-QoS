@@ -88,92 +88,51 @@ set allowed-interface-list=LAN
 ## PASSWORD
 /password old-password="" new-password=Myrouter1 confirm-new-password=Myrouter1
 #
+/
+#
 #
 #
 #
 ### QoS
 #
-# Firewall Mangle rules to mark connections to streaming services
-/ip firewall mangle
-## add connection mark
-### youtube
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="youtube"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="googlevideo"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="video.google"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="video.l.google"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="youtu."
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="yt."
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="yt3.ggpht.com"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="ytimg"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:youtube"  content="ytkids"
-### twitch
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:twitch"  content="twitch"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:twitch"  content="ttvnw.net"
-### Netflix
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:Netflix"  content="Netflix"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=udp\
-    comment="Connection-mark streaming:Netflix"  content="nflx"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
-    comment="Connection-mark streaming:Netflix"  content="Netflix"
-add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new\
-    log=yes log-prefix=cm_streaming_youtube new-connection-mark=cm_streaming passthrough=yes protocol=tcp\
-    comment="Connection-mark streaming:Netflix"  content="nflx"
-## add address of streaming server to the address list
-add action=add-dst-to-address-list address-list=addr-l_streaming address-list-timeout=3h chain=prerouting comment=\
-    "Add streaming destination IP to the address list addr-l_streaming" connection-mark=cm_streaming log=yes log-prefix=addr-l_streaming
-## add packet mark for streaming
-add action=mark-packet chain=prerouting comment="Packet mark streaming" dst-address-list=addr-l_streaming log=yes\
-log-prefix=pm_streaming new-packet-mark=pm_streaming passthrough=yes
+# address rules
+/ip firewall address-list
+add address=176.58.30.0/24 list=addrl-TVO comment=TVoost-non-live-content-streaming-servers
+add address=93.123.38.0/24 list=addrl-TVO comment=TVoost-live-content-streaming-servers
+add address=176.58.31.0/24 list=addrl-TVO comment=TVoost-live-content-streaming-servers
 #
-# Firewall Mangle rules to mark connections for live video and audio calls
-add action=mark-connection chain=prerouting comment="Connection-mark live-video-audio" connection-mark=no-mark\
-    connection-state=new dst-address-list=!addr-l_streaming log=yes log-prefix=cm_live-video-audio\
-    new-connection-mark=cm_live-video-audio passthrough=yes protocol=udp
-## add address of live video or audio call to the address list
-add action=add-dst-to-address-list address-list=addr-l_live-video-audio address-list-timeout=4h chain=prerouting comment=\
-    "Add live video or audio call destination IP to the address list addr-l_live-video-audio" connection-mark=cm_live-video-audio\
-    log=yes log-prefix=addr-l_live-video-audio
-## add packet mark for live video or audio calls
-add action=mark-packet chain=prerouting comment="Packet-mark live-video-audio" dst-address-list=addr-l_live-video-audio\
-    log=yes log-prefix=pm_live-video-audio new-packet-mark=pm_live-video-audio passthrough=yes  protocol=udp
+# mangle rules
+/ip firewall mangle
+# add connection mark for TVoost traffic
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new dst-address-list=addrl-TVO\
+log=yes log-prefix=cm_tvo new-connection-mark=cm_tvo passthrough=yes dst-port=!53 dst-address=!255.255.255.255\
+comment=Connections-mark_to_TVoost
+# add connection mark for UDP traffic
+add action=mark-connection chain=prerouting connection-mark=no-mark connection-state=new dst-address-list=!addrl-TVO\
+log=yes log-prefix=cm_udp new-connection-mark=cm_udp passthrough=yes protocol=udp comment=Connection-mark_for_other_udp_traffic
+#  add packet mark for TVoost traffic
+add action=mark-packet chain=prerouting connection-mark=cm_tvo log=yes log-prefix=pm_tvo\
+new-packet-mark=pm_tvo passthrough=yes comment=Packet-mark_for_TVoost
+# add connection mark for UDP traffic
+add action=mark-packet chain=prerouting connection-mark=cm_udp log=yes log-prefix=pm_udp\
+new-packet-mark=pm_udp passthrough=yes comment=Packet-mark_for_UDP_traffic
 #
 # Queue types
 /queue type
-add kind=pcq name=streaming-pcq pcq-burst-rate=10M pcq-burst-threshold=2M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=2M
-add kind=pcq name=live-calls-pcq pcq-burst-rate=10M pcq-burst-threshold=6M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=6M
-add kind=pcq name=other-pcq pcq-burst-rate=10M pcq-burst-threshold=5M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=5M
+add kind=pcq name=pcq-tvo pcq-burst-rate=512k pcq-burst-threshold=512k pcq-burst-time=15s pcq-classifier=dst-address pcq-rate=256k
+add kind=pcq name=pcq-udp pcq-burst-rate=10M pcq-burst-threshold=6M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=6M
+add kind=pcq name=pcq-other pcq-burst-rate=10M pcq-burst-threshold=5M pcq-burst-time=1m pcq-classifier=dst-address pcq-rate=5M
 #
 #Queue tree
 /queue tree
-add name=QT-ether1-wan parent=bridge-LAN priority=1 limit-at=45M max-limit=45M
-add name=QT-streaming packet-mark=pm_streaming parent=QT-ether1-wan queue=streaming-pcq
-add name=QT-live-calls packet-mark=pm_live-video-audio parent=QT-ether1-wan priority=1 queue=live-calls-pcq
-add name=QT-other packet-mark=no-mark parent=QT-ether1-wan priority=2 queue=other-pcq
+#
+#   please change the parent parameter to match your interface name of your bridge or ethernet interface where your LAN is connected to
+#
+add name=QT-ether1-wan parent=bridge-LAN priority=1 limit-at=10M max-limit=10M comment=parent_queue_tree_item
+#
+add name=QT-tvo packet-mark=pm_tvo parent=QT-ether1-wan queue=pcq-tvo comment=TVoost_queue_tree_item
+add name=QT-udp packet-mark=pm_udp parent=QT-ether1-wan priority=1 queue=pcq-udp comment=UDP_queue_tree_item
+add name=QT-other packet-mark=no-mark parent=QT-ether1-wan priority=2 queue=pcq-other comment=Other_traffic_queue_tree_item
+#
 }
 #
