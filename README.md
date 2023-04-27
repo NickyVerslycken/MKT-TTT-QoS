@@ -18,6 +18,14 @@
      - This rules are an extension for the address list, you don't need them to implement but that are subnets of more streaming servers of the same company.
  -  queue-items
      - This is the configuration for the Queue type's and the Queue tree
+ -  full-configuration:
+    - You can use that for loading all the configuration at once. (only use if realy necessary)
+    - Tackle it:
+      - Connect your computer with your router on ether1.
+      - Reset to no default configuratin so it's completely empty.
+      - Copy the script from the file "basic-configuration" and past it in the terminal of your router.
+      - When it's fully deployed disconnect from ether1 and connect you computer to ether2.
+      - Connect ether1 to the internet RJ45 connection in your desk.   
 
 ----------------------------------------------------------------------------
 
