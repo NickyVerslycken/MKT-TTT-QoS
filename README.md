@@ -2,6 +2,8 @@
 
 ## Configuration files:
 > Only use them when you are short on time or as gideline when you are configuring your router by yourself.
+ -  reset-configuration:
+    - command to reset your router to no defaults
  -  basic-configuration:
     - You can use that for loading a basic configuration in your router if you want but a normal basic router setup works perfect aswell for this lab.
     - Tackle it:
