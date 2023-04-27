@@ -16,7 +16,7 @@
      - This are the rules you will inplement in the address list and the mangle rules in your configuration.
  -  firewall-rules-extended:
      - This rules are an extension for the address list, you don't need them to implement but that are subnets of more streaming servers of the same company.
- -  queue-rules
+ -  queue-items
      - This is the configuration for the Queue type's and the Queue tree
 
 ----------------------------------------------------------------------------
