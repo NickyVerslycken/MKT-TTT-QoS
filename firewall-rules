@@ -1,0 +1,6 @@
+# address rules
+/ip firewall address-list
+add address=176.58.30.0/24 list=addrl-TVO comment=TVoost-non-live-content-streaming-servers
+add address=93.123.38.0/24 list=addrl-TVO comment=TVoost-live-content-streaming-servers
+add address=176.58.31.0/24 list=addrl-TVO comment=TVoost-live-content-streaming-servers
+#
